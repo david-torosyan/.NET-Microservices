@@ -27,9 +27,8 @@ namespace Mango.Services.CouponAPI.Controllers
             try
             {
                 IEnumerable<Coupon> objectList = _db.Coupons.ToList();
-
                 _responseDto.Result = _mapper.Map<IEnumerable<CouponDto>>(objectList);
-                
+
             }
             catch (Exception ex)
             {
@@ -40,7 +39,7 @@ namespace Mango.Services.CouponAPI.Controllers
         }
 
         [HttpGet]
-        [Route("id:int")] // Explicitly
+        [Route("{id:int}")] // Explicitly
         public ResponseDto Get(int id)
         {
             try
@@ -53,6 +52,94 @@ namespace Mango.Services.CouponAPI.Controllers
                 _responseDto.IsSuccess = false;
                 _responseDto.Message = ex.Message;
             }
+            return _responseDto;
+        }
+
+        [HttpGet]
+        [Route("GetByCode/{code}")] // Explicitly
+        public ResponseDto Get(string code)
+        {
+            try
+            {
+                Coupon obj = _db.Coupons.First(u => u.CouponCode.ToLower() == code.ToLower());
+                _responseDto.Result = _mapper.Map<CouponDto>(obj);
+            }
+            catch (Exception ex)
+            {
+                _responseDto.IsSuccess = false;
+                _responseDto.Message = ex.Message;
+            }
+            return _responseDto;
+        }
+
+        [HttpPost]
+        public ResponseDto Post([FromBody] CouponDto couponDto)
+        {
+            if (ModelState.IsValid && couponDto.CouponId == 0)
+            {
+                try
+                {
+                    Coupon obj = _mapper.Map<Coupon>(couponDto);
+                    _db.Coupons.Add(obj);
+                    _db.SaveChanges();
+                    _responseDto.Result = couponDto;
+                }
+                catch (Exception ex)
+                {
+                    _responseDto.IsSuccess = false;
+                    _responseDto.Message = ex.Message;
+                }
+            }
+            else
+            {
+                _responseDto.IsSuccess = false;
+            }
+            return _responseDto;
+        }
+
+        [HttpPut]
+        public ResponseDto Put([FromBody] CouponDto couponDto)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    Coupon obj = _mapper.Map<Coupon>(couponDto);
+                    _db.Coupons.Update(obj);
+                    _db.SaveChanges();
+                    _responseDto.Result = couponDto;
+                }
+                catch (Exception ex)
+                {
+                    _responseDto.IsSuccess = false;
+                    _responseDto.Message = ex.Message;
+                }
+            }
+            else
+            {
+                _responseDto.IsSuccess = false;
+            }
+            return _responseDto;
+        }
+
+        [HttpDelete]
+        public ResponseDto Delete(int id)
+        {
+
+            try
+            {
+                Coupon obj = _db.Coupons.First(u => u.CouponId == id);
+                _db.Coupons.Remove(obj);
+                _db.SaveChanges();
+
+                _responseDto.Result = _mapper.Map<CouponDto>(obj);
+            }
+            catch (Exception ex)
+            {
+                _responseDto.IsSuccess = false;
+                _responseDto.Message = ex.Message;
+            }
+
             return _responseDto;
         }
     }
