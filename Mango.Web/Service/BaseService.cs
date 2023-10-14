@@ -41,7 +41,7 @@ namespace Mango.Web.Service
                         message.Method = HttpMethod.Put;
                         break;
                     case ApiType.DELETE:
-                        message.Method = HttpMethod.Post;
+                        message.Method = HttpMethod.Delete;
                         break;
                     default:
                         message.Method = HttpMethod.Get;
@@ -65,8 +65,8 @@ namespace Mango.Web.Service
                         return new() { IsSuccess = false, Message = "Internal Server Error" };
 
                     default:
-                        var apiContent = await apiResponse.Content.ReadAsStringAsync();
-                        var apiResponseDto = JsonConvert.DeserializeObject<ResponseDto>(apiContent);
+                        string apiContent = await apiResponse.Content.ReadAsStringAsync();
+                        ResponseDto? apiResponseDto = JsonConvert.DeserializeObject<ResponseDto>(apiContent);
                         return apiResponseDto;
                 }
             }
