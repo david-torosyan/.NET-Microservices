@@ -1,16 +1,12 @@
 ﻿using Mango.Web.Models;
 using Mango.Web.Service.IService;
 using Mango.Web.Utility;
-using System.Security.Policy;
-using static Mango.Web.Utility.SD;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Mango.Web.Service
 {
     public class AuthService : IAuthService
     {
         private readonly IBaseService _baseService;
-
         public AuthService(IBaseService baseService)
         {
             _baseService = baseService;
@@ -22,7 +18,7 @@ namespace Mango.Web.Service
             {
                 ApiType = SD.ApiType.POST,
                 Data = registrationRequestDto,
-                Url = $"{SD.AuthAPIBase}/api/auth/AssignRole"
+                Url = SD.AuthAPIBase + "/api/auth/AssignRole"
             });
         }
 
@@ -32,8 +28,8 @@ namespace Mango.Web.Service
             {
                 ApiType = SD.ApiType.POST,
                 Data = loginRequestDto,
-                Url = $"{SD.AuthAPIBase}/api/auth/login"
-            });
+                Url = SD.AuthAPIBase + "/api/auth/login"
+            }, withBearer: false);
         }
 
         public async Task<ResponseDto?> RegisterAsync(RegistrationRequestDto registrationRequestDto)
@@ -42,8 +38,8 @@ namespace Mango.Web.Service
             {
                 ApiType = SD.ApiType.POST,
                 Data = registrationRequestDto,
-                Url = $"{SD.AuthAPIBase}/api/auth/register"
-            });
+                Url = SD.AuthAPIBase + "/api/auth/register"
+            }, withBearer: false);
         }
     }
 }
