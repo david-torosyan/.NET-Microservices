@@ -75,6 +75,7 @@ namespace Mango.Services.CouponAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "ADMIN")]
         public ResponseDto Post([FromBody] CouponDto couponDto)
         {
             if (ModelState.IsValid && couponDto.CouponId == 0)
@@ -100,6 +101,7 @@ namespace Mango.Services.CouponAPI.Controllers
         }
 
         [HttpPut]
+        [Authorize(Roles = "ADMIN")]
         public ResponseDto Put([FromBody] CouponDto couponDto)
         {
             if (ModelState.IsValid)
@@ -126,6 +128,7 @@ namespace Mango.Services.CouponAPI.Controllers
 
         [HttpDelete]
         [Route("{id:int}")]
+        [Authorize(Roles = "ADMIN")]
         public ResponseDto Delete(int id)
         {
 
