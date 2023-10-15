@@ -1,6 +1,7 @@
 ﻿using Mango.Services.AuthAPI.Data;
 using Mango.Services.AuthAPI.Models;
 using Mango.Services.AuthAPI.Models.Dto;
+using Mango.Services.AuthAPI.Service.IService;
 using Mango.Services.AuthAPI.Services.IServices;
 using Microsoft.AspNetCore.Identity;
 
@@ -22,25 +23,37 @@ namespace Mango.Services.AuthAPI.Service
             _roleManager = roleManager;
         }
 
+        public async Task<bool> AssignRole(string email, string roleName)
+        {
+            var user = _db.ApplicationUsers.FirstOrDefault(u => u.Email.ToLower() == email.ToLower());
+            if (user != null)
+            {
+                if (!_roleManager.RoleExistsAsync(roleName).GetAwaiter().GetResult())
+                {
+                    //create role if it does not exist
+                    _roleManager.CreateAsync(new IdentityRole(roleName)).GetAwaiter().GetResult();
+                }
+                await _userManager.AddToRoleAsync(user, roleName);
+                return true;
+            }
+            return false;
+
+        }
+
         public async Task<LoginResponseDto> Login(LoginRequestDto loginRequestDto)
         {
             var user = _db.ApplicationUsers.FirstOrDefault(u => u.UserName.ToLower() == loginRequestDto.UserName.ToLower());
 
-            if (user == null)
-            {
-                return new LoginResponseDto() { User = null, Token = "" };
-            }
-
             bool isValid = await _userManager.CheckPasswordAsync(user, loginRequestDto.Password);
 
-            if (!isValid)
+            if (user == null || isValid == false)
             {
                 return new LoginResponseDto() { User = null, Token = "" };
             }
 
-            // If user was found, generate JWT Token
-            var token = _jwtTokenGenerator.GenerateToken(user);
-
+            //if user was found , Generate JWT Token
+            var roles = await _userManager.GetRolesAsync(user);
+            var token = _jwtTokenGenerator.GenerateToken(user, roles);
 
             UserDto userDTO = new()
             {
@@ -58,7 +71,6 @@ namespace Mango.Services.AuthAPI.Service
 
             return loginResponseDto;
         }
-
 
         public async Task<string> Register(RegistrationRequestDto registrationRequestDto)
         {
