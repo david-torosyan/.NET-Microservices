@@ -4,25 +4,58 @@ using Mango.Services.AuthAPI.Models.Dto;
 using Mango.Services.AuthAPI.Services.IServices;
 using Microsoft.AspNetCore.Identity;
 
-namespace Mango.Services.AuthAPI.Services
+namespace Mango.Services.AuthAPI.Service
 {
     public class AuthService : IAuthService
     {
         private readonly AppDbContext _db;
-        // Helper methods for Authentication
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+       // private readonly IJwtTokenGenerator _jwtTokenGenerator;
 
-        public AuthService(AppDbContext db, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public AuthService(AppDbContext db,/* IJwtTokenGenerator jwtTokenGenerator,*/
+            UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _db = db;
+            //_jwtTokenGenerator = jwtTokenGenerator;
             _userManager = userManager;
             _roleManager = roleManager;
         }
-        public Task<LoginResponseDto> Login(LoginRequestDto loginRequsestDto)
+
+        public async Task<LoginResponseDto> Login(LoginRequestDto loginRequestDto)
         {
-            throw new NotImplementedException();
+            var user = _db.ApplicationUsers.FirstOrDefault(u => u.UserName.ToLower() == loginRequestDto.UserName.ToLower());
+
+            if (user == null)
+            {
+                return new LoginResponseDto() { User = null, Token = "" };
+            }
+
+            bool isValid = await _userManager.CheckPasswordAsync(user, loginRequestDto.Password);
+
+            if (!isValid)
+            {
+                return new LoginResponseDto() { User = null, Token = "" };
+            }
+            
+            // If user was found, generate JWT Token
+            UserDto userDTO = new()
+            {
+                Email = user.Email,
+                ID = user.Id,
+                Name = user.Name,
+                PhoneNumber = user.PhoneNumber
+            };
+
+            LoginResponseDto loginResponseDto = new LoginResponseDto()
+            {
+                User = userDTO,
+                Token = "" // Generate your JWT token here
+            };
+
+            return loginResponseDto;
         }
+
 
         public async Task<string> Register(RegistrationRequestDto registrationRequestDto)
         {
@@ -32,15 +65,16 @@ namespace Mango.Services.AuthAPI.Services
                 Email = registrationRequestDto.Email,
                 NormalizedEmail = registrationRequestDto.Email.ToUpper(),
                 Name = registrationRequestDto.Name,
-                PhoneNumber = registrationRequestDto.PhoneNumber,
+                PhoneNumber = registrationRequestDto.PhoneNumber
             };
+
             try
             {
-                // Creating new user by helper class UserManager
-                var result = await _userManager.CreateAsync(user);
+                var result = await _userManager.CreateAsync(user, registrationRequestDto.Password);
                 if (result.Succeeded)
                 {
                     var userToReturn = _db.ApplicationUsers.First(u => u.UserName == registrationRequestDto.Email);
+
                     UserDto userDto = new()
                     {
                         Email = userToReturn.Email,
@@ -48,7 +82,9 @@ namespace Mango.Services.AuthAPI.Services
                         Name = userToReturn.Name,
                         PhoneNumber = userToReturn.PhoneNumber
                     };
+
                     return "";
+
                 }
                 else
                 {
@@ -60,7 +96,7 @@ namespace Mango.Services.AuthAPI.Services
             {
 
             }
-            return "Error Encounter";
+            return "Error Encountered";
         }
     }
 }
