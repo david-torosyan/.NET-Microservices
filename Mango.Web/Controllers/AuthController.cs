@@ -1,9 +1,15 @@
 ﻿using Mango.Web.Models;
 using Mango.Web.Service.IService;
 using Mango.Web.Utility;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 namespace Mango.Web.Controllers
 {
@@ -11,9 +17,11 @@ namespace Mango.Web.Controllers
     {
 
         private readonly IAuthService _authService;
-        public AuthController(IAuthService authService)
+        private readonly ITokenProvider _tokenProvider;
+        public AuthController(IAuthService authService, ITokenProvider tokenProvider)
         {
             _authService = authService;
+            _tokenProvider = tokenProvider;
         }
 
         [HttpGet]
@@ -21,6 +29,29 @@ namespace Mango.Web.Controllers
         {
             LoginRequestDto loginRequestDto = new LoginRequestDto();
             return View(loginRequestDto);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginRequestDto obj)
+        {
+            ResponseDto? responseDto = await _authService.LoginAsync(obj);
+
+            if (responseDto != null && responseDto.IsSuccess)
+            {
+                LoginResponseDto loginResponseDto =
+                    JsonConvert.DeserializeObject<LoginResponseDto>(Convert.ToString(responseDto.Result));
+
+                await SignInUser(loginResponseDto);
+                _tokenProvider.SetToken(loginResponseDto.Token); // Add cookie in your browser ceche
+
+
+                return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+                TempData["error"] = responseDto.Message;
+                return View(obj);
+            }
         }
 
         [HttpGet]
@@ -70,23 +101,38 @@ namespace Mango.Web.Controllers
             return View(obj);
         }
 
-
-        [HttpPost]
-        public async Task<IActionResult> Login(LoginRequestDto obj)
+        public async Task<IActionResult> Logout()
         {
-            ResponseDto? responseDto = await _authService.LoginAsync(obj);
+            await HttpContext.SignOutAsync();
+            _tokenProvider.ClearToken();
 
-            if (responseDto != null && responseDto.IsSuccess)
-            {
-                LoginResponseDto loginResponseDto =
-                    JsonConvert.DeserializeObject<LoginResponseDto>(Convert.ToString(responseDto.Result));
-                return RedirectToAction("Index", "Home");
-            }
-            else
-            {
-                TempData["error"] = responseDto.Message;
-                return View(obj);
-            }
+            return RedirectToAction("Index","Home");
         }
+
+        private async Task SignInUser(LoginResponseDto model)
+        {
+            var handler = new JwtSecurityTokenHandler();
+
+            var jwt = handler.ReadJwtToken(model.Token);
+
+            var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
+            identity.AddClaim(new Claim(JwtRegisteredClaimNames.Email,
+                jwt.Claims.FirstOrDefault(u => u.Type == JwtRegisteredClaimNames.Email).Value));
+            identity.AddClaim(new Claim(JwtRegisteredClaimNames.Sub,
+                jwt.Claims.FirstOrDefault(u => u.Type == JwtRegisteredClaimNames.Sub).Value));
+            identity.AddClaim(new Claim(JwtRegisteredClaimNames.Name,
+                jwt.Claims.FirstOrDefault(u => u.Type == JwtRegisteredClaimNames.Name).Value));
+
+
+            identity.AddClaim(new Claim(ClaimTypes.Name,
+                jwt.Claims.FirstOrDefault(u => u.Type == JwtRegisteredClaimNames.Email).Value));
+            identity.AddClaim(new Claim(ClaimTypes.Role,
+                jwt.Claims.FirstOrDefault(u => u.Type == "role").Value));
+
+
+            var principal = new ClaimsPrincipal(identity);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+        }
+
     }
 }
