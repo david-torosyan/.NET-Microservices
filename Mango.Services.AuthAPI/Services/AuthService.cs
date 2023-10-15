@@ -37,7 +37,6 @@ namespace Mango.Services.AuthAPI.Service
                 return true;
             }
             return false;
-
         }
 
         public async Task<LoginResponseDto> Login(LoginRequestDto loginRequestDto)
