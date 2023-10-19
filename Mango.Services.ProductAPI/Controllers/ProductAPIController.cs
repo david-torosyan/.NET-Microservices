@@ -40,6 +40,7 @@ namespace Mango.Services.ProductAPI.Controllers
 
         [HttpGet]
         [Route("{id:int}")]
+        [Authorize]
         public ResponseDto Get(int id)
         {
             try

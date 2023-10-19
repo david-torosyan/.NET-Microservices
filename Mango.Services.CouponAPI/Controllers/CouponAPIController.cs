@@ -10,7 +10,6 @@ namespace Mango.Services.CouponAPI.Controllers
 {
     [Route("api/Coupon")]
     [ApiController]
-    [Authorize]
     public class CouponAPIController : ControllerBase
     {
         readonly AppDbContext _db;
@@ -41,6 +40,7 @@ namespace Mango.Services.CouponAPI.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         [Route("{id:int}")] // Explicitly
         public ResponseDto Get(int id)
         {
