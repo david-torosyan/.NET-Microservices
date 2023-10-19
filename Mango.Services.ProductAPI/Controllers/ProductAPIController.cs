@@ -66,6 +66,7 @@ namespace Mango.Services.ProductAPI.Controllers
                 _db.Products.Add(product);
                 _db.SaveChanges();
 
+                //TODO: Image is not working
                 //if (ProductDto.Image != null)
                 //{
 
