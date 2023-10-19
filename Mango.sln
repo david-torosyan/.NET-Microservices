@@ -15,7 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mango.Services.CouponAPI", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mango.Web", "Mango.Web\Mango.Web.csproj", "{6F8F416E-0282-43D4-82A6-B93D457A1113}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mango.Services.AuthAPI", "Mango.Services.AuthAPI\Mango.Services.AuthAPI.csproj", "{C14EAF67-FA30-4FFF-A2DE-998BBC9770B4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mango.Services.AuthAPI", "Mango.Services.AuthAPI\Mango.Services.AuthAPI.csproj", "{C14EAF67-FA30-4FFF-A2DE-998BBC9770B4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mango.Services.ProductAPI", "Mango.Services.ProductAPI\Mango.Services.ProductAPI.csproj", "{94D8F5F1-29D1-46C6-A38E-2D5C1388BB3C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,6 +37,10 @@ Global
 		{C14EAF67-FA30-4FFF-A2DE-998BBC9770B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C14EAF67-FA30-4FFF-A2DE-998BBC9770B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C14EAF67-FA30-4FFF-A2DE-998BBC9770B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94D8F5F1-29D1-46C6-A38E-2D5C1388BB3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94D8F5F1-29D1-46C6-A38E-2D5C1388BB3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94D8F5F1-29D1-46C6-A38E-2D5C1388BB3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94D8F5F1-29D1-46C6-A38E-2D5C1388BB3C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -43,6 +49,7 @@ Global
 		{048F7528-BBF9-4106-9A67-117633122149} = {48EF0E12-B028-40D2-B7B0-3DF5DA9F9136}
 		{6F8F416E-0282-43D4-82A6-B93D457A1113} = {97F35A7E-BD84-4939-8C27-7D32297AB9BD}
 		{C14EAF67-FA30-4FFF-A2DE-998BBC9770B4} = {48EF0E12-B028-40D2-B7B0-3DF5DA9F9136}
+		{94D8F5F1-29D1-46C6-A38E-2D5C1388BB3C} = {48EF0E12-B028-40D2-B7B0-3DF5DA9F9136}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5FE6A304-897E-4677-80A9-0913EE1DBA15}
