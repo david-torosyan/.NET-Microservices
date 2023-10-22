@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using Azure;
 using Mango.Services.ShoppingCartAPI.Data;
 using Mango.Services.ShoppingCartAPI.Models;
 using Mango.Services.ShoppingCartAPI.Models.Dto;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.PortableExecutable;
 
 namespace Mango.Services.ShoppingCartAPI.Controllers
 {
@@ -11,7 +13,7 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
     [ApiController]
     public class CartAPIController : ControllerBase
     {
-        private ResponseDto _responseDto;
+        private ResponseDto _response;
         private IMapper _mapper;
         private readonly AppDbContext _db;
 
@@ -19,6 +21,7 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
         {
             _db = db;
             _mapper = mapper;
+            _response = new ResponseDto();
         }
 
         // Update + Insert = Upsert
@@ -27,42 +30,50 @@ namespace Mango.Services.ShoppingCartAPI.Controllers
         {
             try
             {
-                var cartHeaderFromDb = await _db.CartHeaders.FirstOrDefaultAsync(
-                     u => u.UserId == cartDto.CartHeader.UserId);
+                var cartHeaderFromDb = await _db.CartHeaders.AsNoTracking()
+                    .FirstOrDefaultAsync(u => u.UserId == cartDto.CartHeader.UserId);
                 if (cartHeaderFromDb == null)
                 {
-                    // create header
+                    //create header and details
                     CartHeader cartHeader = _mapper.Map<CartHeader>(cartDto.CartHeader);
                     _db.CartHeaders.Add(cartHeader);
                     await _db.SaveChangesAsync();
-
                     cartDto.CartDetails.First().CartHeaderId = cartHeader.CartHeaderId;
-                    CartDetail cartDetail = _mapper.Map<CartDetail>(cartDto.CartDetails.First());
+                    _db.CartDetails.Add(_mapper.Map<CartDetail>(cartDto.CartDetails.First()));
                     await _db.SaveChangesAsync();
                 }
                 else
                 {
-                    // check if details has the same product
+                    //if header is not null
+                    //check if details has same product
+                    var cartDetailsFromDb = await _db.CartDetails.AsNoTracking().FirstOrDefaultAsync(
+                        u => u.ProductId == cartDto.CartDetails.First().ProductId &&
+                        u.CartHeaderId == cartHeaderFromDb.CartHeaderId);
+                    if (cartDetailsFromDb == null)
+                    {
+                        //create cartdetails
+                        cartDto.CartDetails.First().CartHeaderId = cartHeaderFromDb.CartHeaderId;
+                        _db.CartDetails.Add(_mapper.Map<CartDetail>(cartDto.CartDetails.First()));
+                        await _db.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        //update count in cart details
+                        cartDto.CartDetails.First().Count += cartDetailsFromDb.Count;
+                        cartDto.CartDetails.First().CartHeaderId = cartDetailsFromDb.CartHeaderId;
+                        cartDto.CartDetails.First().CartDetailsId = cartDetailsFromDb.CartDetailsId;
+                        _db.CartDetails.Update(_mapper.Map<CartDetail>(cartDto.CartDetails.First()));
+                        await _db.SaveChangesAsync();
+                    }
                 }
-                var cartDetailsFromDb = await _db.CartDetails.FirstOrDefaultAsync(
-                     u => u.CartHeaderId == cartHeaderFromDb.CartHeaderId &&
-                     u.ProductId == cartDto.CartDetails.First().ProductId);
-                if(cartDetailsFromDb == null) 
-                {
-                    // create cartDetails
-                }
-                else
-                {
-                    // update count 
-                }
+                _response.Result = cartDto;
             }
             catch (Exception ex)
             {
-                _responseDto.Message = ex.Message.ToString();
-                _responseDto.IsSuccess = false;
+                _response.Message = ex.Message.ToString();
+                _response.IsSuccess = false;
             }
-
-            return null;
+            return _response;
         }
     }
 }
