@@ -1,11 +1,10 @@
 using AutoMapper;
-using Mango.Services.ProductAPI;
-using Mango.Services.ProductAPI.Data;
-using Mango.Services.ProductAPI.Extensions;
+using Mango.Services.ShoppingCartAPI;
+using Mango.Services.ShoppingCartAPI.Data;
+using Mango.Services.ShoppingCartAPI.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using System;
 
 var builder = WebApplication.CreateBuilder(args);
 

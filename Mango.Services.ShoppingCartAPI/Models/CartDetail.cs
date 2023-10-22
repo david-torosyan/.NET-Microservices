@@ -4,7 +4,7 @@ using Mango.Services.ShoppingCartAPI.Models.Dto;
 
 namespace Mango.Services.ShoppingCartAPI.Models
 {
-    public class CartDetails
+    public class CartDetail
     {
         [Key]
         public int CartDetailsId { get; set; }
