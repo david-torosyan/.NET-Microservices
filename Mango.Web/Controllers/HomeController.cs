@@ -1,4 +1,5 @@
-﻿using Mango.Web.Models;
+﻿using IdentityModel;
+using Mango.Web.Models;
 using Mango.Web.Service.IService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -63,20 +64,20 @@ namespace Mango.Web.Controllers
         {
             CartDto cartDto = new CartDto()
             {
-                //CartHeader = new CartHeaderDto
-                //{
-                //    UserId = User.Claims.Where(u => u.Type == JwtClaimTypes.Subject)?.FirstOrDefault()?.Value
-                //}
+                CartHeader = new CartHeaderDto
+                {
+                    UserId = User.Claims.Where(u => u.Type == JwtClaimTypes.Subject)?.FirstOrDefault()?.Value
+                }
             };
 
-            //CartDetailsDto cartDetails = new CartDetailsDto()
-            //{
-            //    Count = productDto.Count,
-            //    ProductId = productDto.ProductId,
-            //};
+            CartDetailDto cartDetails = new CartDetailDto()
+            {
+                Count = productDto.Count,
+                ProductId = productDto.ProductId,
+            };
 
-//            List<CartDetailsDto> cartDetailsDtos = new() { cartDetails };
- //           cartDto.CartDetails = cartDetailsDtos;
+            List<CartDetailDto> cartDetailsDtos = new() { cartDetails };
+            cartDto.CartDetails = cartDetailsDtos;
 
             ResponseDto? response = await _cartService.UpsertCartAsync(cartDto);
 
