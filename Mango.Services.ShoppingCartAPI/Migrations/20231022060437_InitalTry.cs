@@ -5,7 +5,7 @@
 namespace Mango.Services.ShoppingCartAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class ShoppingCart : Migration
+    public partial class InitalTry : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

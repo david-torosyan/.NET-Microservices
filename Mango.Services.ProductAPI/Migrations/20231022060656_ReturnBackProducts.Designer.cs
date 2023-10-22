@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Mango.Services.ProductAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20231021182715_AddProductToDataBase")]
-    partial class AddProductToDataBase
+    [Migration("20231022060656_ReturnBackProducts")]
+    partial class ReturnBackProducts
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
