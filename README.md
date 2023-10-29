@@ -7,4 +7,4 @@ Identity Server integration
 Async and Sync communication between Microservices
 Role based authorization with Identity Server
 N-Layer implementation with Repository Pattern
-Entity Framework Core with SQL Server Database.
+Entity Framework Core with SQL Server Database
